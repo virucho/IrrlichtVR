@@ -175,7 +175,7 @@ void main()
 
 	//Variables de manejo de la camara
 	vector3df CamPos = vector3df(0.0f,150,0);
-	vector3df ViewVector = vector3df(1.0f,0.0f,1.0f);
+	vector3df ViewVector = vector3df(1.0f,-1.0f,1.0f);
 
 	SIrrlichtCreationParameters Parameters;
 
@@ -184,7 +184,7 @@ void main()
 
 	core::stringw strName = L"MedienProjekt - IrrlichtVR [FPS: 0]";
 
-	Parameters.DriverType = EDT_DIRECT3D9; //EDT_OPENGL;
+	Parameters.DriverType = EDT_DIRECT3D9;
 	Parameters.Vsync = false;
 	Parameters.Stencilbuffer = true;
 	Parameters.Stereobuffer = false;
@@ -206,10 +206,10 @@ void main()
 	
 #ifdef _IWEAR_ACTIVED_
 	#ifdef _IWEAR_TRACKING_
-	//Inicio las gafas
-	VRTracker = new iWearTracker();
-	VRTracker->Initialize();
-	VRTracker->SetFilterState(true);
+		//Inicio las gafas
+		VRTracker = new iWearTracker();
+		VRTracker->Initialize();
+		VRTracker->SetFilterState(true);
 	#endif
 
 	#ifdef _IWEAR_STEREO_
@@ -281,8 +281,8 @@ void main()
 			ViewVector = VRTracker->CalViewVector(VRTracker->getRadPitch(), VRTracker->getRadYaw());
 
 			//Update Position stereo Camera
-			VRStereo->PosStereoCamera(cameraLeft, CamPos, ViewVector, LEFT_EYE);
-			VRStereo->PosStereoCamera(cameraRight, CamPos, ViewVector, RIGHT_EYE);
+			VRStereo->CalcStereoVectors(cameraLeft, CamPos, ViewVector, LEFT_EYE);
+			VRStereo->CalcStereoVectors(cameraRight, CamPos, ViewVector, RIGHT_EYE);
 
 			//Sensor Data
 			sprintf(Chachara, "Pich: %f - Yaw: %f", VRTracker->getPitch(), -VRTracker->getYaw());

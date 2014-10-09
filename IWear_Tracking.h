@@ -167,6 +167,8 @@ namespace Iwear
 
 				int ProductID;
 				DWORD iwr_Ret;
+
+				vector3df UpVector;
 			/********** Constructor **********/
 			public:
 				iWearStereo3D();
@@ -174,7 +176,7 @@ namespace Iwear
 			/********** Public Methods **********/
 				void ActiveStereo();
 				bool SynchronizeEye(int Eye);
-				void PosStereoCamera(ICameraSceneNode* Camera, vector3df CameraPos, vector3df ViewVector, int Eye);
+				void CalcStereoVectors(ICameraSceneNode* Camera, vector3df CameraPos, vector3df ViewVector, int Eye);
 
 			/********** Private Methods **********/
 			private:
@@ -184,11 +186,6 @@ namespace Iwear
 			bool getStereoAvailable()
 			{
 				return stereoAvailable;
-			}
-			
-			HANDLE GetStereoHandle()
-			{
-				return stereoHandle;
 			}
 		};
 	}// End namespace Stereo3D
