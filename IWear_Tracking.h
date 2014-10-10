@@ -36,11 +36,6 @@ using namespace irr;			//Haupt Namespace von Irrlicht
 using namespace core;
 using namespace scene;
 
-/****************************************************************/
-/*                        Defines                               */
-/****************************************************************/
-
-enum						{ LEFT_EYE=0, RIGHT_EYE, MONO_EYES };
 
 /****************************************************************/
 /*                        Extra                                 */
@@ -53,6 +48,20 @@ enum						{ LEFT_EYE=0, RIGHT_EYE, MONO_EYES };
 
 namespace Iwear
 {
+	
+	/****************************************************************/
+	/*                        Defines                               */
+	/****************************************************************/
+
+	enum						{ LEFT_EYE=0, RIGHT_EYE, MONO_EYES };
+	
+	//Estereo Defines
+	#define DEFAULT_SEPARATION		0.35f
+	#define DEFAULT_FOV_Y			45.0f
+	#define DEFAULT_FOCAL_LENGTH	10.0f
+	#define DEFAULT_NEAR_Z			1.0f
+	#define DEFAULT_FAR_Z			1500.0f
+	
 	namespace Tracking
 	{
 		class iWearTracker
@@ -86,6 +95,7 @@ namespace Iwear
 				void UpdateSensor();
 				void iWearDispose();
 				vector3df CalViewVector(float Pitch, float Yaw);
+				void CalcCameraVectors(ICameraSceneNode* Camera, vector3df CameraPos, vector3df ViewVector, int Eye);
 
 			/********** Private Methods **********/
 			private:
@@ -149,14 +159,7 @@ namespace Iwear
 	}// End namespace Tracking
 	
 	namespace Stereo3D
-	{
-		//Estereo Defines
-		#define DEFAULT_SEPARATION		0.35f
-		#define DEFAULT_FOV_Y			45.0f
-		#define DEFAULT_FOCAL_LENGTH	10.0f
-		#define DEFAULT_NEAR_Z			1.0f
-		#define DEFAULT_FAR_Z			1000.0f
-		
+	{		
 		class iWearStereo3D
 		{
 			/********** Member Field **********/
@@ -168,7 +171,6 @@ namespace Iwear
 				int ProductID;
 				DWORD iwr_Ret;
 
-				vector3df UpVector;
 			/********** Constructor **********/
 			public:
 				iWearStereo3D();
@@ -176,7 +178,6 @@ namespace Iwear
 			/********** Public Methods **********/
 				void ActiveStereo();
 				bool SynchronizeEye(int Eye);
-				void CalcStereoVectors(ICameraSceneNode* Camera, vector3df CameraPos, vector3df ViewVector, int Eye);
 
 			/********** Private Methods **********/
 			private:

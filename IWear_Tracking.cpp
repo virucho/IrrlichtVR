@@ -117,6 +117,41 @@ namespace Tracking
 		return Target;
 	}
 
+	void iWearTracker::CalcCameraVectors(ICameraSceneNode* Camera, vector3df CameraPos, vector3df ViewVector, int Eye)
+	{
+		vector3df UpVector = vector3df(0.0f,1.0f,0.0f);
+		
+		vector3df RightVector;
+		vector3df vStereoAdj;
+
+		vector3df vEyePt = CameraPos;
+		vector3df vLookatPt = ViewVector + vEyePt;
+
+		RightVector = UpVector.crossProduct(ViewVector);
+	
+		switch( Eye ) 
+		{
+			case LEFT_EYE:
+				// Vector adjust:
+				vStereoAdj	= RightVector * DEFAULT_SEPARATION;
+				vEyePt		-= vStereoAdj;
+				vLookatPt	-= vStereoAdj;
+
+				Camera->setPosition(vEyePt);
+				Camera->setTarget(vLookatPt);
+			break;
+			case RIGHT_EYE:
+				// Vector adjust:
+				vStereoAdj	= RightVector * DEFAULT_SEPARATION;
+				vEyePt		+= vStereoAdj;
+				vLookatPt	+= vStereoAdj;
+
+				Camera->setPosition(vEyePt);
+				Camera->setTarget(vLookatPt);
+			break;
+		}
+	}
+
 	/********** Private Methods **********/
 
 	float iWearTracker::ConvertToRadians(long value)
@@ -128,6 +163,7 @@ namespace Tracking
 	{
 		return (float)value * IWR_RAWTODEG;
 	}
+
 }// End namespace Tracking
 
 namespace Stereo3D
@@ -140,8 +176,6 @@ namespace Stereo3D
 
 		ProductID = 0;
 		iwr_Ret = IWR_OK;
-
-		UpVector = vector3df(0.0f,1.0f,0.0f);
 	}
 	
 	void iWearStereo3D::ActiveStereo()
@@ -188,38 +222,6 @@ namespace Stereo3D
 		return true;
 	}
 
-	void iWearStereo3D::CalcStereoVectors(ICameraSceneNode* Camera, vector3df CameraPos, vector3df ViewVector, int Eye)
-	{
-		vector3df RightVector;
-		vector3df vStereoAdj;
-
-		vector3df vEyePt = CameraPos;
-		vector3df vLookatPt = ViewVector + vEyePt;
-
-		RightVector = UpVector.crossProduct(ViewVector);
-	
-		switch( Eye ) 
-		{
-			case LEFT_EYE:
-				// Vector adjust:
-				vStereoAdj	= RightVector * DEFAULT_SEPARATION;
-				vEyePt		-= vStereoAdj;
-				vLookatPt	-= vStereoAdj;
-
-				Camera->setPosition(vEyePt);
-				Camera->setTarget(vLookatPt);
-			break;
-			case RIGHT_EYE:
-				// Vector adjust:
-				vStereoAdj	= RightVector * DEFAULT_SEPARATION;
-				vEyePt		+= vStereoAdj;
-				vLookatPt	+= vStereoAdj;
-
-				Camera->setPosition(vEyePt);
-				Camera->setTarget(vLookatPt);
-			break;
-		}
-	}
 }// End namespace Stereo
 	
 }// End namespace Iwear

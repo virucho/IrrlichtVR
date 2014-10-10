@@ -17,10 +17,13 @@
 /*                        Defines                               */
 /****************************************************************/
 
-#define INT_FULLSCRENN false
+#define INT_FULLSCREEN false
 
+#define _QUAKE_MODEL_
+
+//Iwear Defines
 #define _IWEAR_ACTIVED_
-#define _IWEAR_STEREO_
+//#define _IWEAR_STEREO_
 #define _IWEAR_TRACKING_
 
 #define _DEFAULT_STEP_ 0.5f
@@ -124,29 +127,33 @@ class CAppReciever : public IEventReceiver
 /*                       Extra Funktions                        */
 /****************************************************************/
 
-bool MoveCameraArrow (vector3df &CPos, CAppReciever* Keys)
+bool MoveCameraArrow (vector3df &CPos, vector3df ViewCamera, CAppReciever* Keys)
 {
+	vector3df UpVector = vector3df(0.0f,1.0f,0.0f);
+
+	vector3df RightVector = UpVector.crossProduct(ViewCamera);
+	
 	if(Keys->isKeyDown(KEY_UP))
 	{
-		CPos.X += _DEFAULT_STEP_;
+		CPos += ViewCamera * _DEFAULT_STEP_;
 		return true;
 	}
 
 	if(Keys->isKeyDown(KEY_DOWN))
 	{
-		CPos.X -= _DEFAULT_STEP_;
+		CPos -= ViewCamera * _DEFAULT_STEP_;
 		return true;
 	}
 
 	if(Keys->isKeyDown(KEY_RIGHT))
 	{
-		CPos.Z -= _DEFAULT_STEP_;
+		CPos += RightVector * _DEFAULT_STEP_;
 		return true;
 	}
 
 	if(Keys->isKeyDown(KEY_LEFT))
 	{
-		CPos.Z += _DEFAULT_STEP_;
+		CPos -= RightVector * _DEFAULT_STEP_;
 		return true;
 	}
 
@@ -174,7 +181,7 @@ void main()
 	CAppReciever* appReceiver = new CAppReciever();
 
 	//Variables de manejo de la camara
-	vector3df CamPos = vector3df(0.0f,150,0);
+	vector3df CamPos = vector3df(0.0f,5,0);
 	vector3df ViewVector = vector3df(1.0f,-1.0f,1.0f);
 
 	SIrrlichtCreationParameters Parameters;
@@ -188,7 +195,7 @@ void main()
 	Parameters.Vsync = false;
 	Parameters.Stencilbuffer = true;
 	Parameters.Stereobuffer = false;
-	Parameters.Fullscreen = false;
+	Parameters.Fullscreen = INT_FULLSCREEN;
 	Parameters.EventReceiver = appReceiver;
 	Parameters.WindowSize = dimension2d<u32>(800, 600);
 	
@@ -225,6 +232,21 @@ void main()
 	IGUIStaticText *Mitexto = guienv->addStaticText(Texto,
 		rect<s32>(10,10,260,22), false);
 
+#ifdef _QUAKE_MODEL_
+	//Load Quake Scene
+	device->getFileSystem()->addFileArchive("Media/map-20kdm2.pk3");
+	//Get Mesh from File
+	scene::IAnimatedMesh* mesh = smgr->getMesh("20kdm2.bsp");
+	//Add Mesh to Scene
+	if (mesh)
+	{
+		scene::ISceneNode* node = smgr->addOctreeSceneNode(mesh->getMesh(0), 0, -1, 1024);
+		//Move Mesh because Not in 0,0,0 Point
+		if (node)
+			node->setPosition(core::vector3df(-1300,-144,-1249));
+	}
+#else
+
 	//Agrego el Terreno
 	ITerrainSceneNode* terrain = smgr->addTerrainSceneNode("Media/heightmap.png");
 	//Escalo el terreno
@@ -235,13 +257,14 @@ void main()
 	terrain->setMaterialTexture(0, driver->getTexture("Media/minimap.jpg"));
 	//Aplico segunda textura
 	//terrain->setMaterialTexture(1, driver->getTexture("Media/redrock.jpg"));
-
+	//Activo tipo de texturizado
 	//terrain->setMaterialType(video::EMT_DETAIL_MAP);
 
 	//SkyDome
 	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 	ISceneNode* skydome = smgr->addSkyDomeSceneNode(driver->getTexture("Media/skydome.jpg"),16,8,0.95f,2.0f);
 	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, true);
+#endif
 
 	//Add Camera in the Scene
 	ICameraSceneNode* cameraRight = smgr->addCameraSceneNode(0, CamPos, ViewVector);
@@ -269,7 +292,7 @@ void main()
 				break;
 
 			//Change Position from Camera
-			MoveCameraArrow(CamPos, appReceiver);
+			MoveCameraArrow(CamPos, ViewVector, appReceiver);
 
 #ifdef _IWEAR_ACTIVED_
 
@@ -281,8 +304,8 @@ void main()
 			ViewVector = VRTracker->CalViewVector(VRTracker->getRadPitch(), VRTracker->getRadYaw());
 
 			//Update Position stereo Camera
-			VRStereo->CalcStereoVectors(cameraLeft, CamPos, ViewVector, LEFT_EYE);
-			VRStereo->CalcStereoVectors(cameraRight, CamPos, ViewVector, RIGHT_EYE);
+			VRTracker->CalcCameraVectors(cameraLeft, CamPos, ViewVector, LEFT_EYE);
+			VRTracker->CalcCameraVectors(cameraRight, CamPos, ViewVector, RIGHT_EYE);
 
 			//Sensor Data
 			sprintf(Chachara, "Pich: %f - Yaw: %f", VRTracker->getPitch(), -VRTracker->getYaw());
