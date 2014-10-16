@@ -57,6 +57,7 @@ namespace Iwear
 	
 	//Estereo Defines
 	#define DEFAULT_SEPARATION		0.35f
+	#define SEPARATION_STEP			0.01f
 	#define DEFAULT_FOV_Y			45.0f
 	#define DEFAULT_FOCAL_LENGTH	10.0f
 	#define DEFAULT_NEAR_Z			1.0f
@@ -84,6 +85,8 @@ namespace Iwear
 
 				int ProductID;
 				DWORD iwr_Ret;
+
+				float Separation_Stereo;
 				//IWR_RETURNS iwr_Ret;
 			/********** Constructor **********/
 			public:
@@ -154,6 +157,16 @@ namespace Iwear
 			BOOL getFilterState()
 			{
 				return FilterState;
+			}
+
+			float getStereoSeparation()
+			{
+				return Separation_Stereo;
+			}
+
+			void setStereoSeparation(float Separation)
+			{
+				Separation_Stereo = Separation;
 			}
 		};
 	}// End namespace Tracking

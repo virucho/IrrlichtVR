@@ -49,6 +49,8 @@ namespace Tracking
 
 		ProductID = 0;
 		iwr_Ret = IWR_OK;
+
+		Separation_Stereo = DEFAULT_SEPARATION;
 	}
 
 	/********** Public Methods **********/
@@ -133,7 +135,7 @@ namespace Tracking
 		{
 			case LEFT_EYE:
 				// Vector adjust:
-				vStereoAdj	= RightVector * DEFAULT_SEPARATION;
+				vStereoAdj	= RightVector * Separation_Stereo;
 				vEyePt		-= vStereoAdj;
 				vLookatPt	-= vStereoAdj;
 
@@ -142,7 +144,7 @@ namespace Tracking
 			break;
 			case RIGHT_EYE:
 				// Vector adjust:
-				vStereoAdj	= RightVector * DEFAULT_SEPARATION;
+				vStereoAdj	= RightVector * Separation_Stereo;
 				vEyePt		+= vStereoAdj;
 				vLookatPt	+= vStereoAdj;
 
@@ -217,7 +219,11 @@ namespace Stereo3D
 		//if (!State.Graphics.IsFullScreen)
 		//    while (State.Device.RasterStatus.ScanLine < windowBottomLine) ;
 
-		IWRSTEREO_SetLR(stereoHandle, Eye);
+		if( !IWRSTEREO_SetLR(stereoHandle, Eye))
+		{
+			//Error
+			return false;
+		}
 
 		return true;
 	}

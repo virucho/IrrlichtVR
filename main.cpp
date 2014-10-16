@@ -23,7 +23,7 @@
 
 //Iwear Defines
 #define _IWEAR_ACTIVED_
-//#define _IWEAR_STEREO_
+#define _IWEAR_STEREO_
 #define _IWEAR_TRACKING_
 
 #define _DEFAULT_STEP_ 0.5f
@@ -251,6 +251,8 @@ void main()
 	ITerrainSceneNode* terrain = smgr->addTerrainSceneNode("Media/heightmap.png");
 	//Escalo el terreno
 	terrain->setScale(vector3df(1.0f, 0.25f, 1.0f));
+	//muevo el terreno
+	terrain->setPosition(core::vector3df(0,-150,0));
 	//Apago componente de Luz
 	terrain->setMaterialFlag(video::EMF_LIGHTING, false);
 	//Aplico una textura
@@ -270,7 +272,7 @@ void main()
 	ICameraSceneNode* cameraRight = smgr->addCameraSceneNode(0, CamPos, ViewVector);
 	cameraRight->setFOV(DEFAULT_FOV_Y);
 	cameraRight->setNearValue(DEFAULT_NEAR_Z);
-	cameraRight->setFarValue(DEFAULT_FAR_Z);
+	cameraRight->setFarValue(DEFAULT_FAR_Z);  
 
 	ICameraSceneNode* cameraLeft = smgr->addCameraSceneNode(0, CamPos, ViewVector);
 	cameraLeft->setFOV(DEFAULT_FOV_Y);
@@ -294,6 +296,11 @@ void main()
 			//Change Position from Camera
 			MoveCameraArrow(CamPos, ViewVector, appReceiver);
 
+			if(appReceiver->isKeyDown(KEY_KEY_Q))
+				VRTracker->setStereoSeparation(VRTracker->getStereoSeparation() - SEPARATION_STEP);
+			if(appReceiver->isKeyDown(KEY_KEY_W))
+				VRTracker->setStereoSeparation(VRTracker->getStereoSeparation() + SEPARATION_STEP);
+
 #ifdef _IWEAR_ACTIVED_
 
 	#ifdef _IWEAR_TRACKING_
@@ -308,7 +315,7 @@ void main()
 			VRTracker->CalcCameraVectors(cameraRight, CamPos, ViewVector, RIGHT_EYE);
 
 			//Sensor Data
-			sprintf(Chachara, "Pich: %f - Yaw: %f", VRTracker->getPitch(), -VRTracker->getYaw());
+			sprintf(Chachara, "Pich: %f - Yaw: %f -- Stereo: %f", VRTracker->getPitch(), -VRTracker->getYaw(), VRTracker->getStereoSeparation());
 			//wsprintf(Texto, Chachara);
 			mbstowcs (Texto, Chachara, 64);
 
